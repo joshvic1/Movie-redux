@@ -1,17 +1,31 @@
 import React from "react";
-import { Card } from "react-bootstrap";
+import { Card, Rate } from "antd";
+import { Link } from "react-router-dom";
 
-const MovieCard = ({ movie }) => {
+const { Meta } = Card;
+
+const MovieCard = ({ Title, Description, PosterURL, Rating, id }) => {
   return (
-    <Card style={{ width: "18rem", margin: "10px" }}>
-      <Card.Img variant="top" src={movie.imageUrl} />
-
-      <Card.Body>
-        <Card.Text>{movie.rate}</Card.Text>
-        <Card.Title>{movie.title}</Card.Title>
-        <Card.Text>{movie.description}</Card.Text>
-      </Card.Body>
-    </Card>
+    // Card Component for each movie
+    <Link to={`${id}`}>
+      <Card
+        className="w-[65vw] sm:w-60"
+        hoverable
+        cover={<img alt="example" src={PosterURL} className="  sm:h-72" />}
+        bodyStyle={{ padding: 10, textAlign: "center" }}
+      >
+        <Meta
+          className=" sm:min-h-[120px] new"
+          title={Title}
+          description={
+            Description.length < 100
+              ? Description
+              : Description.slice(0, 95) + "..."
+          }
+        />
+        <Rate disabled defaultValue={Rating} className="mt-2" />
+      </Card>
+    </Link>
   );
 };
 

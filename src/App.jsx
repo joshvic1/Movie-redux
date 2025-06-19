@@ -1,69 +1,68 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import Filter from "./components/Filter";
-import { Button, Container } from "react-bootstrap";
+import { moviesData } from "./data";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addMovie } from "./redux/movieSlice";
-import { v4 as uuidv4 } from "uuid";
-import MovieList from "./components/MovieList";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
+import MovieList from "./pages/MovieList/MovieList";
+import MovieDetail from "./pages/MovieList/MovieDetail";
+import Filter from "./components/Filter";
 
-const App = () => {
-  const dispatch = useDispatch();
+function App() {
+  // state to manage movies to be displayed
+  const [myMovies, setMyMovies] = useState(moviesData);
 
-  const [newMovie, setNewMovie] = useState({
-    title: "",
-    description: "",
-    imageUrl: "",
-    rate: 0,
-  });
+  // state for filter button display
+  const [clearFilterBtnState, setClearFilterBtnState] = useState(false);
 
-  const handleAddMovie = () => {
-    dispatch(addMovie({ ...newMovie, id: uuidv4() }));
-    setNewMovie({ title: "", description: "", imageUrl: "", rate: 0 });
-  };
+  // movies to be displayed when no filter is applied
+  const [unFiltered, setUnFiltered] = useState(myMovies);
 
   return (
-    <Container>
-      <h1 className="text-center mt-4">Movie App With Redux</h1>
-      <Filter />
+    <div className="mb-8">
+      <BrowserRouter>
+        <Routes>
+          {/* Main layout route to nest other pages/components */}
+          <Route path="/" element={<MainLayout />}>
+            <Route
+              element={
+                <Filter
+                  setMyMovies={setMyMovies} // Component needs to able to setMyMovies
+                  clearFilterBtnState={clearFilterBtnState}
+                  setClearFilterBtnState={setClearFilterBtnState}
+                  unFiltered={unFiltered}
+                  setUnFiltered={setUnFiltered}
+                />
+              }
+            >
+              <Route
+                index
+                element={
+                  myMovies.length === 0 ? (
+                    <div className="text-center p-24 text-4xl font-extrabold">
+                      Search did not return any result. Try again
+                    </div>
+                  ) : (
+                    <MovieList myMovies={myMovies} />
+                  )
+                }
+              />
+            </Route>
 
-      <div className="mt-2 mb-2 gap-3 d-flex justify-content-center ">
-        <input
-          placeholder="Title"
-          value={newMovie.title}
-          onChange={(e) => setNewMovie({ ...newMovie, title: e.target.value })}
-        />
-        <input
-          placeholder="Description"
-          value={newMovie.description}
-          onChange={(e) =>
-            setNewMovie({ ...newMovie, description: e.target.value })
-          }
-        />
-        <input
-          placeholder="Image Url"
-          value={newMovie.imageUrl}
-          onChange={(e) =>
-            setNewMovie({ ...newMovie, imageUrl: e.target.value })
-          }
-        />
-        <input
-          placeholder="Rating"
-          type="number"
-          value={newMovie.rate}
-          onChange={(e) =>
-            setNewMovie({ ...newMovie, rate: Number(e.target.value) })
-          }
-        />
-
-        <Button variant="danger" onClick={handleAddMovie}>
-          Add Movies
-        </Button>
-      </div>
-
-      <MovieList />
-    </Container>
+            <Route
+              path=":movieId"
+              element={
+                <MovieDetail
+                  setMyMovies={setMyMovies}
+                  unFiltered={unFiltered}
+                  setClearFilterBtnState={setClearFilterBtnState}
+                  myMovies={myMovies}
+                />
+              }
+            />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
-};
+}
 
 export default App;
